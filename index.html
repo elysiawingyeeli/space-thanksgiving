@@ -152,6 +152,7 @@
     <a href="#" data-t="gratitude">Gratitude</a>
     <a href="#drinks" data-t="drinks">Drinks</a>
     <a href="#food" data-t="food">Food</a>
+    <a href="#desserts" data-t="desserts">Dessert</a>
     <a href="#photos" data-t="photos">Photos</a>
   </nav>
   <div class="setup" id="setup"></div>
@@ -181,6 +182,11 @@
   <section id="tab-food" class="tab">
     <p class="lead">Tonight's feast · <b>fuel for the crew</b></p>
     <div class="menu" id="menu-food"></div>
+  </section>
+
+  <section id="tab-desserts" class="tab">
+    <p class="lead">Something sweet · <b>baked for Saturday</b></p>
+    <div class="menu" id="menu-desserts"></div>
   </section>
 
   <section id="tab-photos" class="tab">
@@ -226,7 +232,8 @@ let chosen="earth",grats=[],menu=[],photos=[];
 /* menu photos, in menu order (position) */
 const MENU_IMG={
   drinks:["falcon-fuel.jpg","dragon-capsule.webp","starship-ignition.jpg","mystery-payload.webp"],
-  food:["orbital-curry.webp","reentry-fish.jpg"]
+  food:["orbital-curry.webp","reentry-fish.jpg"],
+  desserts:["rosemary-cookies.webp"]
 };
 
 /* starfield */
@@ -262,7 +269,7 @@ function route(){
   document.body.classList.toggle("story",h==="stories");
   if(h==="stories"){startStory();return}
   stopStory();
-  const t=["drinks","food","photos"].includes(h)?h:"gratitude";
+  const t=["drinks","food","desserts","photos"].includes(h)?h:"gratitude";
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="tab-"+t));
   document.querySelectorAll(".tabs a").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
 }
@@ -278,7 +285,7 @@ function renderGrats(){
     const w2=document.createElement("div");w2.className="from";w2.textContent="from "+p.n;m.append(w1,w2);c.append(o,tg,q,m);w.append(c)});
   route();
 }
-function renderMenu(){["drinks","food"].forEach(cat=>{const box=$("menu-"+cat);box.innerHTML="";const list=menu.filter(x=>x.category===cat);
+function renderMenu(){["drinks","food","desserts"].forEach(cat=>{const box=$("menu-"+cat);box.innerHTML="";const list=menu.filter(x=>x.category===cat);
   if(!list.length){const e=document.createElement("div");e.className="empty";e.textContent="Coming soon.";box.append(e);return}
   list.forEach((it,i)=>{const r=document.createElement("div");r.className="item";
     const pic=document.createElement("div");pic.className="pic";
