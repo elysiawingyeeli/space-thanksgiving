@@ -285,11 +285,13 @@ function beam(){const b=$("beam");b.classList.remove("go");void b.offsetWidth;b.
 /* tabs */
 function route(){
   const h=location.hash.slice(1);
+  const wasStory=document.body.classList.contains("story");
+  const wasPStory=document.body.classList.contains("pstory");
   document.body.classList.toggle("story",h==="stories");
   document.body.classList.toggle("pstory",h==="photostories");
-  if(h==="stories"){stopPhotoStory();startStory();return}
+  if(h==="stories"){if(!wasStory){stopPhotoStory();startStory()}return}
   stopStory();
-  if(h==="photostories"){startPhotoStory();return}
+  if(h==="photostories"){if(!wasPStory)startPhotoStory();return}
   stopPhotoStory();
   const t=["drinks","food","photos"].includes(h)?h:"gratitude";
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="tab-"+t));
@@ -311,8 +313,10 @@ function renderMenu(){["drinks","food"].forEach(cat=>{const box=$("menu-"+cat);b
   if(!list.length){const e=document.createElement("div");e.className="empty";e.textContent="Coming soon.";box.append(e);return}
   list.forEach((it,i)=>{const r=document.createElement("div");r.className="item";
     const pic=document.createElement("div");pic.className="pic";
-    const im=document.createElement("img");im.loading="lazy";im.src=MENU_IMG[cat][i]||"";im.alt=it.name;
-    pic.append(im);
+    const src=MENU_IMG[cat][i];
+    if(src){const im=document.createElement("img");im.loading="lazy";im.src=src;im.alt=it.name;
+      im.onerror=()=>{pic.style.display="none"};pic.append(im)}
+    else pic.style.display="none";
     const bd=document.createElement("div");bd.className="body";
     const n=document.createElement("div");n.className="nm";n.textContent=it.name;bd.append(n);
     if(it.tags){const d=document.createElement("div");d.className="tg";d.textContent=it.tags;bd.append(d)}
@@ -329,7 +333,8 @@ $("lightbox").onclick=()=>$("lightbox").classList.remove("on");
 /* story mode */
 let si=0,stimer=null,story=[];
 function showStory(){clearTimeout(stimer);
-  if(!story.length){$("tvq").textContent="Waiting for the first signal…";$("tvwho").textContent="";$("bars").innerHTML="";$("tvcount").textContent="";return}
+  if(!story.length){$("tvq").textContent="Waiting for the first signal…";$("tvwho").textContent="";$("bars").innerHTML="";$("tvcount").textContent="";stimer=setTimeout(showStory,5000);return}
+  if(story.length!==grats.length){const cur=story[si];story=grats.slice().reverse();si=Math.max(0,story.indexOf(cur))}
   si=(si+story.length)%story.length;const g=story[si],p=P[g.planet]||P.earth;
   $("bars").innerHTML=story.map((_,i)=>`<span class="${i<si?"done":i===si?"on":""}"><b></b></span>`).join("");
   $("tvq").classList.add("out");$("tvwho").classList.add("out");
@@ -346,7 +351,8 @@ $("tv").addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTou
 /* photo story mode */
 let psi=0,ptimer=null,pstory=[];
 function showPhotoStory(){clearTimeout(ptimer);
-  if(!pstory.length){$("ptvimg").style.display="none";$("ptvcap").textContent="No photos yet — be the first to upload one.";$("ptvwho").textContent="";$("pbars").innerHTML="";$("ptvcount").textContent="";return}
+  if(!pstory.length){$("ptvimg").style.display="none";$("ptvcap").textContent="No photos yet — be the first to upload one.";$("ptvwho").textContent="";$("pbars").innerHTML="";$("ptvcount").textContent="";ptimer=setTimeout(showPhotoStory,5000);return}
+  if(pstory.length!==photos.length){const cur=pstory[psi];pstory=photos.slice();psi=Math.max(0,pstory.indexOf(cur))}
   psi=(psi+pstory.length)%pstory.length;const p=pstory[psi];
   $("pbars").innerHTML=pstory.map((_,i)=>`<span class="${i<psi?"done":i===psi?"on":""}"><b></b></span>`).join("");
   const im=$("ptvimg");im.style.display="block";im.src=p.url;im.alt=p.caption||"";
