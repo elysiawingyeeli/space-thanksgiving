@@ -128,6 +128,16 @@
   .tap.l{left:0;width:35%} .tap.r{right:0;width:65%}
   #tvexit{position:fixed;top:calc(env(safe-area-inset-top,0px) + 26px);right:14px;z-index:12;display:none;font-size:16px;padding:6px 12px}
   body.story #tvexit{display:block}
+
+  /* Photo story mode */
+  #ptv{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:calc(env(safe-area-inset-top,0px) + 70px) 26px calc(env(safe-area-inset-bottom,0px) + 70px);background:rgba(0,0,0,.96);user-select:none;-webkit-user-select:none}
+  body.pstory #ptv{display:flex} body.pstory main,body.pstory .fab{display:none}
+  #ptvimg{max-width:100%;max-height:62vh;border-radius:4px;object-fit:contain}
+  #ptvcap{font-family:"Archivo",sans-serif;font-weight:700;font-size:clamp(20px,5vw,32px);line-height:1.3;max-width:640px;margin-top:22px;word-wrap:break-word}
+  #ptvwho{margin-top:14px;font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+  #ptvcount{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);left:0;right:0;font-size:10px;letter-spacing:.3em;color:var(--dim)}
+  #ptvexit{position:fixed;top:calc(env(safe-area-inset-top,0px) + 26px);right:14px;z-index:12;display:none;font-size:16px;padding:6px 12px}
+  body.pstory #ptvexit{display:block}
   footer{max-width:1100px;margin:28px auto 0;padding:18px 0 0;border-top:1px solid var(--line);text-align:center;font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
   /* phone: keep each screen tight so the form fits without scrolling */
   @media (max-width:520px){
@@ -202,7 +212,7 @@
       <button class="btn" type="submit" id="psend">Upload</button>
       <div class="status" id="pstatus"></div>
     </form>
-    <div class="photowall-head"><h2>Photos</h2><span id="pcount"></span></div>
+    <div class="photowall-head"><h2>Photos</h2><span id="pcount"></span><a class="ghost" href="#photostories">Play ✦</a></div>
     <div class="grid" id="grid"></div>
     <div class="empty" id="pempty">No photos yet.</div>
   </section>
@@ -219,6 +229,15 @@
   <div id="tvorb"></div><div id="tvq">Waiting for the first signal…</div><div id="tvwho"></div><div id="tvcount"></div>
 </div>
 <a class="ghost" id="tvexit" href="#" aria-label="Close">✕</a>
+
+<div id="ptv">
+  <div class="bars" id="pbars"></div>
+  <button class="tap l" id="pprev" aria-label="Previous"></button>
+  <button class="tap r" id="pnext" aria-label="Next"></button>
+  <img id="ptvimg" alt="">
+  <div id="ptvcap">No photos yet.</div><div id="ptvwho"></div><div id="ptvcount"></div>
+</div>
+<a class="ghost" id="ptvexit" href="#" aria-label="Close">✕</a>
 
 <script src="config.js"></script>
 <script type="module">
@@ -267,8 +286,11 @@ function beam(){const b=$("beam");b.classList.remove("go");void b.offsetWidth;b.
 function route(){
   const h=location.hash.slice(1);
   document.body.classList.toggle("story",h==="stories");
-  if(h==="stories"){startStory();return}
+  document.body.classList.toggle("pstory",h==="photostories");
+  if(h==="stories"){stopPhotoStory();startStory();return}
   stopStory();
+  if(h==="photostories"){startPhotoStory();return}
+  stopPhotoStory();
   const t=["drinks","food","photos"].includes(h)?h:"gratitude";
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="tab-"+t));
   document.querySelectorAll(".tabs a").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
@@ -320,6 +342,22 @@ function stopStory(){clearTimeout(stimer);story=[]}
 $("next").onclick=()=>{si++;showStory()};$("prev").onclick=()=>{si--;showStory()};
 let sx=null;$("tv").addEventListener("touchstart",e=>{sx=e.touches[0].clientX},{passive:true});
 $("tv").addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50){si+=dx<0?1:-1;showStory()}});
+
+/* photo story mode */
+let psi=0,ptimer=null,pstory=[];
+function showPhotoStory(){clearTimeout(ptimer);
+  if(!pstory.length){$("ptvimg").style.display="none";$("ptvcap").textContent="No photos yet — be the first to upload one.";$("ptvwho").textContent="";$("pbars").innerHTML="";$("ptvcount").textContent="";return}
+  psi=(psi+pstory.length)%pstory.length;const p=pstory[psi];
+  $("pbars").innerHTML=pstory.map((_,i)=>`<span class="${i<psi?"done":i===psi?"on":""}"><b></b></span>`).join("");
+  const im=$("ptvimg");im.style.display="block";im.src=p.url;im.alt=p.caption||"";
+  $("ptvcap").textContent=p.caption||"";
+  $("ptvwho").textContent=p.agent;
+  $("ptvcount").textContent=`${psi+1} / ${pstory.length}`;ptimer=setTimeout(()=>{psi++;showPhotoStory()},7000)}
+function startPhotoStory(){pstory=photos.slice();psi=0;showPhotoStory()}
+function stopPhotoStory(){clearTimeout(ptimer);pstory=[]}
+$("pnext").onclick=()=>{psi++;showPhotoStory()};$("pprev").onclick=()=>{psi--;showPhotoStory()};
+let psx=null;$("ptv").addEventListener("touchstart",e=>{psx=e.touches[0].clientX},{passive:true});
+$("ptv").addEventListener("touchend",e=>{if(psx==null)return;const dx=e.changedTouches[0].clientX-psx;psx=null;if(Math.abs(dx)>50){psi+=dx<0?1:-1;showPhotoStory()}});
 addEventListener("resize",route);
 
 renderMenu();renderGrats();renderPhotos();
