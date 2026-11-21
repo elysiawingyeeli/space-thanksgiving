@@ -32,8 +32,8 @@
   .masthead h1{font-family:"Archivo",sans-serif;font-weight:900;font-size:clamp(30px,7vw,52px);line-height:1;letter-spacing:-.02em}
   .masthead p{margin-top:8px;color:var(--dim);font-size:13px}
 
-  .tabs{display:flex;gap:4px;margin:18px auto 18px;padding:4px;border:1px solid var(--line);border-radius:4px;background:rgba(11,11,14,.85);backdrop-filter:blur(8px);width:max-content;max-width:100%;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:7}
-  .tabs a{padding:8px 12px;border-radius:2px;color:var(--dim);text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+  .tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:18px auto 18px;padding:4px;border:1px solid var(--line);border-radius:4px;background:rgba(11,11,14,.85);backdrop-filter:blur(8px);width:100%;max-width:560px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:7}
+  .tabs a{flex:1 1 auto;padding:8px 10px;border-radius:2px;color:var(--dim);text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-align:center}
   .tabs a.on{background:#fff;color:#000;font-weight:700}
   .tab{display:none}.tab.on{display:block}
   .lead{display:none}
@@ -159,6 +159,7 @@
     .masthead h1{font-size:30px}
     .masthead p{font-size:12px;margin-top:6px}
     .tabs{margin:12px auto}
+    .tabs a{padding:8px 8px;font-size:10px;letter-spacing:.1em}
     .panel{margin-bottom:20px;padding:14px}
     .card{padding:16px}
     .card blockquote{font-size:17px}
