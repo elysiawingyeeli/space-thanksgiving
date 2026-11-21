@@ -417,8 +417,11 @@ function answerQ(i,btn){const t=TRIVIA[qi];
   document.querySelectorAll("#quiz .opt").forEach(b=>b.disabled=true);
   if(i===t.a){btn.classList.add("right");$("qfb").textContent="Correct — next question incoming…";
     setTimeout(()=>{qi++;qi<TRIVIA.length?showQ():showQuizDone()},900)}
-  else{btn.classList.add("wrong");$("qfb").textContent="Wrong answer.";$("qfb").classList.add("bad");
-    setTimeout(showInvasion,700)}}
+  else{btn.classList.add("wrong");
+    document.querySelectorAll("#quiz .opt")[t.a].classList.add("right");
+    $("qfb").textContent="Wrong answer — the right one is highlighted.";
+    $("qfb").classList.add("bad");
+    setTimeout(showInvasion,1600)}}
 function showInvasion(){$("quiz").innerHTML=`
   <h2>👽 Invasion!</h2>
   <p class="qsub">The aliens got you on question ${qi+1}. Better luck next launch.</p>
