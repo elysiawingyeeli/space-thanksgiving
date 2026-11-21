@@ -138,6 +138,20 @@
   #ptvcount{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);left:0;right:0;font-size:10px;letter-spacing:.3em;color:var(--dim)}
   #ptvexit{position:fixed;top:calc(env(safe-area-inset-top,0px) + 26px);right:14px;z-index:12;display:none;font-size:16px;padding:6px 12px}
   body.pstory #ptvexit{display:block}
+  /* trivia */
+  #quiz h2{font-family:"Archivo",sans-serif;font-weight:900;font-size:24px;text-transform:uppercase;text-align:center;line-height:1.15}
+  #quiz .qsub{text-align:center;color:var(--dim);font-size:12px;margin-top:10px;line-height:1.6}
+  .hearts{text-align:center;font-size:18px;letter-spacing:4px;margin:14px 0 4px;color:#c48cff}
+  .hearts .off{opacity:.25}
+  .qnum{text-align:center;font-size:11px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
+  .qtext{font-family:"Archivo",sans-serif;font-weight:700;font-size:20px;line-height:1.35;margin-bottom:16px}
+  .opt{display:block;width:100%;text-align:left;margin-bottom:10px;padding:13px 14px;border-radius:2px;border:1px solid rgba(255,255,255,.22);background:#000;color:#fff;font:500 16px "Archivo",sans-serif;cursor:pointer}
+  .opt:hover{border-color:#fff}
+  .opt.right{border-color:var(--teal);background:rgba(111,227,214,.12)}
+  .opt.wrong{border-color:#ff9aa9;background:rgba(255,154,169,.12)}
+  .opt:disabled{cursor:default}
+  .qfb{text-align:center;font-size:13px;min-height:18px;margin-top:4px;color:var(--teal)}
+  .qfb.bad{color:#ff9aa9}
   footer{max-width:1100px;margin:28px auto 0;padding:18px 0 0;border-top:1px solid var(--line);text-align:center;font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
   /* phone: keep each screen tight so the form fits without scrolling */
   @media (max-width:520px){
@@ -170,6 +184,7 @@
     <a href="#drinks" data-t="drinks">Drinks</a>
     <a href="#food" data-t="food">Food</a>
     <a href="#photos" data-t="photos">Photos</a>
+    <a href="#trivia" data-t="trivia">Trivia</a>
   </nav>
   <div class="setup" id="setup"></div>
 
@@ -215,6 +230,11 @@
     <div class="photowall-head"><h2>Photos</h2><span id="pcount"></span><a class="ghost" href="#photostories">Play ✦</a></div>
     <div class="grid" id="grid"></div>
     <div class="empty" id="pempty">No photos yet.</div>
+  </section>
+
+  <section id="tab-trivia" class="tab">
+    <p class="lead">Test your orbit · <b>10 questions</b></p>
+    <div class="panel" id="quiz"></div>
   </section>
 
   <footer><span>Space Thanksgiving</span></footer>
@@ -293,7 +313,7 @@ function route(){
   stopStory();
   if(h==="photostories"){if(!wasPStory)startPhotoStory();return}
   stopPhotoStory();
-  const t=["drinks","food","photos"].includes(h)?h:"gratitude";
+  const t=["drinks","food","photos","trivia"].includes(h)?h:"gratitude";
   document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="tab-"+t));
   document.querySelectorAll(".tabs a").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
 }
@@ -364,6 +384,54 @@ function stopPhotoStory(){clearTimeout(ptimer);pstory=[]}
 $("pnext").onclick=()=>{psi++;showPhotoStory()};$("pprev").onclick=()=>{psi--;showPhotoStory()};
 let psx=null;$("ptv").addEventListener("touchstart",e=>{psx=e.touches[0].clientX},{passive:true});
 $("ptv").addEventListener("touchend",e=>{if(psx==null)return;const dx=e.changedTouches[0].clientX-psx;psx=null;if(Math.abs(dx)>50){psi+=dx<0?1:-1;showPhotoStory()}});
+/* trivia — from the Space Thanksgiving Trivia deck */
+const TRIVIA=[
+ {q:"What does the centre of the universe smell/taste like?",opts:["Mangoes and Syrup","Raspberries and Rum","Detergent and Hydrochlorides","Cookies and Cream"],a:1},
+ {q:"There are more stars in the universe than grains of sand on Earth.",opts:["True","False"],a:0},
+ {q:"Australia, in diameter, is wider than the moon.",opts:["True","False"],a:0},
+ {q:"What was the first animal humankind sent into space?",opts:["Monkeys","Cats","Dogs","Flies"],a:3},
+ {q:"Which of these women was not on the Katy Perry spaceflight?",opts:["Gayle King","Ellie Goulding"],a:1},
+ {q:"Which of these men was not scheduled for the dearMOON flight?",opts:["Dev Joshi","Steve Aoki"],a:0},
+ {q:"What colour are sunsets on Mars?",opts:["Yellow","Hot Pink","Red","Blue"],a:3},
+ {q:"The first cat in space was…",opts:["French","Jamaican"],a:0},
+ {q:"Which Thanksgiving dish was on the menu for Apollo 11?",opts:["Mashed Potatoes","Roast Ham","Turkey and Gravy","Pumpkin Pie"],a:2},
+ {q:"The very first “meal” consumed on the Moon was a renegade Communion by Buzz Aldrin, who snuck a wafer and wine into space.",opts:["True","False"],a:0}
+];
+let qi=0;
+function hearts(n){return Array.from({length:10},(_,i)=>`<span class="${i<n?"":"off"}">♥</span>`).join("")}
+function showQuizStart(){qi=0;$("quiz").innerHTML=`
+  <h2>Space Thanksgiving Trivia</h2>
+  <div class="hearts">${hearts(10)}</div>
+  <p class="qsub">Ten questions. Get one wrong and the aliens invade — start over and try again.</p>
+  <button class="btn" id="qgo">Start</button>`;
+  $("qgo").onclick=showQ}
+function showQ(){const t=TRIVIA[qi];
+  $("quiz").innerHTML=`
+  <div class="hearts">${hearts(qi)}</div>
+  <div class="qnum">Question ${qi+1} of 10</div>
+  <div class="qtext">${t.q}</div>
+  ${t.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}
+  <div class="qfb" id="qfb"></div>`;
+  document.querySelectorAll("#quiz .opt").forEach(b=>b.onclick=()=>answerQ(+b.dataset.i,b))}
+function answerQ(i,btn){const t=TRIVIA[qi];
+  document.querySelectorAll("#quiz .opt").forEach(b=>b.disabled=true);
+  if(i===t.a){btn.classList.add("right");$("qfb").textContent="Correct — next question incoming…";
+    setTimeout(()=>{qi++;qi<TRIVIA.length?showQ():showQuizDone()},900)}
+  else{btn.classList.add("wrong");$("qfb").textContent="Wrong answer.";$("qfb").classList.add("bad");
+    setTimeout(showInvasion,700)}}
+function showInvasion(){$("quiz").innerHTML=`
+  <h2>👽 Invasion!</h2>
+  <p class="qsub">The aliens got you on question ${qi+1}. Better luck next launch.</p>
+  <button class="btn" id="qretry">Try again</button>`;
+  $("qretry").onclick=showQuizStart}
+function showQuizDone(){$("quiz").innerHTML=`
+  <h2>Quiz completed!</h2>
+  <div class="hearts">${hearts(10)}</div>
+  <p class="qsub">10 out of 10 — a perfect flight, commander.</p>
+  <button class="btn" id="qagain">Play again</button>`;
+  $("qagain").onclick=showQuizStart}
+showQuizStart();
+
 addEventListener("resize",route);
 
 renderMenu();renderGrats();renderPhotos();
