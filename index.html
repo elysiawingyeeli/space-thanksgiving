@@ -398,12 +398,12 @@ const TRIVIA=[
  {q:"Which Thanksgiving dish was on the menu for Apollo 11?",opts:["Mashed Potatoes","Roast Ham","Turkey and Gravy","Pumpkin Pie"],a:2},
  {q:"The very first “meal” consumed on the Moon was a renegade Communion by Buzz Aldrin, who snuck a wafer and wine into space.",opts:["True","False"],a:0}
 ];
-let qi=0;
+let qi=0,score=0;
 function hearts(n){return Array.from({length:10},(_,i)=>`<span class="${i<n?"":"off"}">♥</span>`).join("")}
-function showQuizStart(){qi=0;$("quiz").innerHTML=`
+function showQuizStart(){qi=0;score=0;$("quiz").innerHTML=`
   <h2>Space Thanksgiving Trivia</h2>
   <div class="hearts">${hearts(10)}</div>
-  <p class="qsub">Ten questions. Get one wrong and the aliens invade — start over and try again.</p>
+  <p class="qsub">Ten questions — pick an answer to move to the next one. See how many you can get right.</p>
   <button class="btn" id="qgo">Start</button>`;
   $("qgo").onclick=showQ}
 function showQ(){const t=TRIVIA[qi];
@@ -416,22 +416,17 @@ function showQ(){const t=TRIVIA[qi];
   document.querySelectorAll("#quiz .opt").forEach(b=>b.onclick=()=>answerQ(+b.dataset.i,b))}
 function answerQ(i,btn){const t=TRIVIA[qi];
   document.querySelectorAll("#quiz .opt").forEach(b=>b.disabled=true);
-  if(i===t.a){btn.classList.add("right");$("qfb").textContent="Correct — next question incoming…";
-    setTimeout(()=>{qi++;qi<TRIVIA.length?showQ():showQuizDone()},900)}
+  if(i===t.a){score++;btn.classList.add("right");$("qfb").textContent="Correct!"}
   else{btn.classList.add("wrong");
     document.querySelectorAll("#quiz .opt")[t.a].classList.add("right");
     $("qfb").textContent="Wrong answer — the right one is highlighted.";
-    $("qfb").classList.add("bad");
-    setTimeout(showInvasion,1600)}}
-function showInvasion(){$("quiz").innerHTML=`
-  <h2>👽 Invasion!</h2>
-  <p class="qsub">The aliens got you on question ${qi+1}. Better luck next launch.</p>
-  <button class="btn" id="qretry">Try again</button>`;
-  $("qretry").onclick=showQuizStart}
-function showQuizDone(){$("quiz").innerHTML=`
-  <h2>Quiz completed!</h2>
-  <div class="hearts">${hearts(10)}</div>
-  <p class="qsub">10 out of 10 — a perfect flight, commander.</p>
+    $("qfb").classList.add("bad")}
+  setTimeout(()=>{qi++;qi<TRIVIA.length?showQ():showQuizDone()},1400)}
+function showQuizDone(){const perfect=score===TRIVIA.length;
+  $("quiz").innerHTML=`
+  <h2>${perfect?"Quiz completed!":"Mission complete!"}</h2>
+  <div class="hearts">${hearts(score)}</div>
+  <p class="qsub">${perfect?"10 out of 10 — a perfect flight, commander.":`You scored ${score} out of 10 — the aliens got you on ${TRIVIA.length-score}. Try again for a perfect flight.`}</p>
   <button class="btn" id="qagain">Play again</button>`;
   $("qagain").onclick=showQuizStart}
 showQuizStart();
