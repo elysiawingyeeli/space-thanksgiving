@@ -108,6 +108,7 @@ async function load(){
   ]);
   grats=gr.data||[];
   photos=(ph.data||[]).map(p=>({...p,url:sb.storage.from("party-photos").getPublicUrl(p.path).data.publicUrl}));
+  for(let i=photos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[photos[i],photos[j]]=[photos[j],photos[i]];}
   if(grats.length){showMsg(0);setInterval(()=>showMsg(mi+3),6000)}
   else $("msg").innerHTML='<div class="empty">No messages yet.</div>';
   const box=$("ph");
