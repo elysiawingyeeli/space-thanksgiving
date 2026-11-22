@@ -19,7 +19,10 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--void);color:var(--ink);font-family:"Space Mono",monospace;min-height:100%}
   body{overflow-x:hidden}
-  .topbar{max-width:920px;margin:0 auto;padding:12px 14px 0;display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  .topbar{max-width:920px;width:calc(100% - 28px);margin:12px auto 0;padding:10px 12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+  .topbar a{overflow:hidden;text-overflow:ellipsis}
+  .topbar span{flex-shrink:0}
+  @media (max-width:480px){.topbar{font-size:10px;letter-spacing:.14em}}
   .topbar a{color:var(--ink);text-decoration:none}
   .topbar a:hover{color:var(--amber)}
   .topbar span{color:var(--dim)}
